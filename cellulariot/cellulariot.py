@@ -10,7 +10,7 @@
 import time
 import serial
 import RPi.GPIO as GPIO
-from .ADS1x15 import ADS1015
+from Adafruit_ADS1x15 import ADS1015
 from .SDL_Pi_HDC1000 import *
 from .MMA8452Q import MMA8452Q
 
