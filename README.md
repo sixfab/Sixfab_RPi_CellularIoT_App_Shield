@@ -9,12 +9,19 @@ The hat has GNSS (GPS, GLONASS etc.) functionality for the need of location, nav
 The design has built-in temperature, humidity, light sensors, 3-axis accelerometer, and a relay.
 
 # Library Installation
-## Installation
+## Manual Installation
 ```
 git clone https://github.com/sixfab/Sixfab_RPi_CellularIoT_Library.git
 cd Sixfab_RPi_CellularIoT_Library
 sudo python3 setup.py install
 ```
+
+## Install with pip3
+Use pip3 to install from PyPI.
+```
+sudo pip3 install sixfab-cellulariot
+```
+
 ## Test
 ```
 cd sample
