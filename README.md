@@ -1,5 +1,5 @@
 # Sixfab RPi Cellular IoT Library 
-Python Library for Sixfab RPi Cellular IoT and Sixfab RPi Cellular IoT Application Hats
+Python Library for Sixfab RPi Cellular IoT Hat and [Sixfab RPi Cellular IoT Application Hat](https://sixfab.com/product/raspberry-pi-cellular-iot-application-hat/)
 
 # Product Description
 This is a hat that has combined LTE technologies Cat.M1, Cat.NB1 (NB-IoT) and eGPRS for Raspberry Pi, based on Quectel’s BG96 module. The hat has the power of new IoT phenomenon LPWA (Low Power Wide Area) with Cat.M1 and NB-IoT connection functionalities. Besides, it also provides the function of eGPRS that be enhanced version of classical GPRS.
@@ -18,7 +18,7 @@ sudo python3 setup.py install
 ## Test
 ```
 cd sample
-python3 sensor_test.py # for testing sensor_test example
+python3 sensor_test.py  #for testing sensor_test example
 ```
 
 # Detailed Features
