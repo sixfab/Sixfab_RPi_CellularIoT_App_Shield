@@ -54,14 +54,12 @@ python3 sensor_test.py  #for testing sensor_test example
 ! All data pins work with 3.3V reference. Any other voltage level should harm your hat or RPI.
 
 # Examples
-** [example code #1](www.github.com/blabla)  
-** [example code #2](www.github.com/blabla)  
-** [example code #3](www.github.com/blabla)  
-# Tutorials 
+** [basicUDP](https://github.com/sixfab/Sixfab_RPi_CellularIoT_Library/blob/master/sample/basicUDP.py)  
+** [sensorTest](https://github.com/sixfab/Sixfab_RPi_CellularIoT_Library/blob/master/sample/sensor_test.py)
 
-** [tutorial #1](http://sixfab.com/blabla)  
-** [tutorial #2](http://sixfab.com/blabla)  
-** [tutorial #3](http://sixfab.com/blabla)  
+# Tutorials 
+** [Basic UDP Communication Tutorial for Sixfab RPi Cellular IoT Application HAT](https://sixfab.com/basic-udp-communication-tutorial-for-sixfab-rpi-cellular-iot-application-hat/)  
+** [Sensor Test Tutorial for Sixfab RPi Cellular IoT Application HAT](https://sixfab.com/sensor-test-tutorial-for-sixfab-rpi-cellular-iot-application-hat/)    
 
 # Applications
 * Smart farming sensor
