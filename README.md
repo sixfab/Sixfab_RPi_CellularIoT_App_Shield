@@ -27,6 +27,9 @@ The design has built-in temperature, humidity, light sensors, 3-axis acceleromet
 * Micro SIM Socket
 * UFL sockets for external antennas
 
+# Pinout
+![Pinout Schematic](https://sixfab.com/wp-content/uploads/2018/09/RPiCellularIoTAppPinout.png)
+
 # Attention
 ! All data pins work with 3.3V reference. Any other voltage level should harm your hat or RPI.
 
