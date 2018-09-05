@@ -8,6 +8,19 @@ The hat has GNSS (GPS, GLONASS etc.) functionality for the need of location, nav
 
 The design has built-in temperature, humidity, light sensors, 3-axis accelerometer, and a relay.
 
+# Library Installation
+## Installation
+```
+git clone https://github.com/sixfab/Sixfab_RPi_CellularIoT_Library.git
+cd Sixfab_RPi_CellularIoT_Library
+sudo python3 setup.py install
+```
+## Test
+```
+cd sample
+python3 sensor_test.py # for testing sensor_test example
+```
+
 # Detailed Features
 * BG96 Cat.M1 / Cat.NB1 (NB-IoT) / eGPRS (EDGE, GPRS)
 * Supported Bands : Global – B1/ B2/ B3/ B4/ B5/ B8/ B12/ B13/ B18/ B19/ B20/ B26/ B28 and B39 ( for Cat M1 only )
