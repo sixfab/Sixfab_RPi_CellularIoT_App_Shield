@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='sixfab_cellulariot',
-    version='0.1',
+    version='1.0',
     author='Yasin Kaya',
     author_email='yasinkaya.121@gmail.com',
     description='sixfab linux libraries',
