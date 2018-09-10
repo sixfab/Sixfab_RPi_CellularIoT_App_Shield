@@ -366,6 +366,92 @@ class CellularIoT:
 
 		self.sendATComm(compose,">")
 		self.sendATComm(data,"SEND OK")
+		
+	def sendDataSixfabConnect(self, server, token, data):
+	
+			
+		compose = "AT+QHTTPCFG=\"contextid\",1"
+		self.sendATComm(compose,"OK")
+		
+		compose = "AT+QHTTPCFG=\"requestheader\",1"
+		self.sendATComm(compose,"OK")
+		
+		url = str("https://"+ server+ "/sixfabStage/")
+		compose = "AT+QHTTPURL="
+		compose += str(len(url))
+		compose += ",80"
+		self.setTimeout(20)
+		self.sendATComm(compose,"CONNECT")
+		self.sendDataComm(url,"OK")
+	
+		payload = "POST /sixfabStage/ HTTP/1.1\r\nHost: "+server+"\r\nx-api-key: "+ token +"\r\nContent-Type: application/json\r\nContent-Length: "+str(len(data))+"\r\n\r\n"
+		payload += data
+		
+		print("POSTED DATA")
+		print(payload)
+		print("----------------")
+	
+		compose = "AT+QHTTPPOST="
+		compose += str(len(payload))
+		compose += ",60,60"
+		
+		self.sendATComm(compose,"CONNECT")
+		self.sendDataComm(payload,"OK")
+		
+	def sendDataIFTTT(self, eventName, key, data):
+	
+			
+		compose = "AT+QHTTPCFG=\"contextid\",1"
+		self.sendATComm(compose,"OK")
+		
+		compose = "AT+QHTTPCFG=\"requestheader\",1"
+		self.sendATComm(compose,"OK")
+		
+		compose = "AT+QHTTPCFG=\"responseheader\",1"
+		self.sendATComm(compose,"OK")
+		
+		url = str("https://maker.ifttt.com/trigger/" + eventName + "/with/key/"+ key)
+		compose = "AT+QHTTPURL="
+		compose += str(len(url))
+		compose += ",80"
+		self.setTimeout(20)
+		self.sendATComm(compose,"CONNECT")
+		self.sendDataComm(url,"OK")
+		
+		payload = "POST /trigger/" + eventName + "/with/key/"+ key +" HTTP/1.1\r\nHost: maker.ifttt.com\r\nContent-Type: application/json\r\nContent-Length: "+str(len(data))+"\r\n\r\n"
+		payload += data
+	
+		compose = "AT+QHTTPPOST="
+		compose += str(len(payload))
+		compose += ",60,60"
+		
+		self.sendATComm(compose,"CONNECT")
+		self.sendDataComm(payload,"OK")
+		
+		delay(5000)
+		
+		self.sendATComm("AT+QHTTPREAD=80","+QHTTPREAD: 0")
+		
+	def sendDataThingspeak(self, key, data):
+	
+			
+		compose = "AT+QHTTPCFG=\"contextid\",1"
+		self.sendATComm(compose,"OK")
+		
+		compose = "AT+QHTTPCFG=\"requestheader\",0"
+		self.sendATComm(compose,"OK")
+		
+		url = str("https://api.thingspeak.com/update?api_key=" + key + "&"+ data)
+		compose = "AT+QHTTPURL="
+		compose += str(len(url))
+		compose += ",80"
+		self.setTimeout(20)
+		self.sendATComm(compose,"CONNECT")
+		self.sendDataComm(url,"OK")
+	
+		delay(3000)
+		
+		self.sendATComm("AT+QHTTPGET=80","+QHTTPGET")
 
 	# function for connecting to server via UDP
 	def startUDPService(self):
