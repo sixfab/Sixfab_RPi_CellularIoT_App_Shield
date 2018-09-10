@@ -23,6 +23,12 @@ sudo pip3 install sixfab-cellulariot
 ```
 
 ## Test
+Enable `serial` and `I2C` interfaces by following instructions below:  
+1. Run `sudo raspi-config`
+2. Select `5 Interfacing Options`
+3. Enable `P5 I2C`
+4. Enable `P6 Serial`
+5. It's done.
 ```
 cd sample
 python3 sensor_test.py  #for testing sensor_test example
