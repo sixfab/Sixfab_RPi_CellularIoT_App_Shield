@@ -28,8 +28,8 @@ Enable `serial_hw` and `I2C` interfaces by following instructions below:
 2. Select `5 Interfacing Options`
 3. Enable `P5 I2C`
 4. For `P6 Serial`
-    * Disable "Login shell to be accessible over serial"
-    * Enable "Serial port hardware"
+    * Disable `Login shell to be accessible over serial`
+    * Enable `Serial port hardware`
 5. Finish
 6. Reboot
 7. It's done.
