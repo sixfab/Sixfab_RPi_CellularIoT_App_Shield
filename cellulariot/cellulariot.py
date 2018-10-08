@@ -48,10 +48,10 @@ def delay(ms):
 	time.sleep(float(ms/1000.0))
 
 ###########################################
-### Cellular IoT Hat Class ################
+### Cellular IoT Shield Class #############
 ###########################################	
 class CellularIoT:
-	board = "" # hat name (Cellular IoT or Cellular IoT App.)
+	board = "" # shield name (Cellular IoT or Cellular IoT App.)
 	ip_address = "" # ip address       
 	domain_name = "" # domain name   
 	port_number = "" # port number 
@@ -93,7 +93,7 @@ class CellularIoT:
 	SCRAMBLE_ON = "0"
 	SCRAMBLE_OFF = "1"
 	
-	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Cellular IoT Hat"):
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield"):
 		
 		self.board = board
     	
@@ -483,11 +483,14 @@ class CellularIoT:
 		self.sendATComm("AT+QICLOSE=1","\r\n")
 			
 ###########################################
-### Cellular IoT Application Hat Class ####
+### Cellular IoT Application Shield Class #
 ###########################################
 class CellularIoTApp(CellularIoT):
-	def __init__(self):
-		super(CellularIoTApp, self).__init__(board="Sixfab Cellular IoT Application Hat")
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield"):
+		self.serial_port = serial_port
+		self.serial_baudrate = serial_baudrate
+		self.board = board
+		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board)
 
 	# 
 	def readAccel(self):
