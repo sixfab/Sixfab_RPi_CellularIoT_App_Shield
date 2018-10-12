@@ -25,7 +25,7 @@ AP_READY = 6
 RING_INDICATOR = 13
 OPTO1 = 10
 OPTO2 = 18
-LUX_CHANNEL = 0
+LUX_CHANNEL = 3
 
 # global variables
 TIMEOUT = 3 # seconds
