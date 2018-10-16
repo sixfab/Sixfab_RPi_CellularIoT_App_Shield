@@ -1,5 +1,5 @@
-# Sixfab RPi Cellular IoT Library 
-Python Library for Sixfab RPi Cellular IoT Shield and [Sixfab RPi Cellular IoT Application Shield](https://sixfab.com/product/raspberry-pi-cellular-iot-application-hat/)
+# Sixfab RPi CellularIoT App Shield
+Repository of Python Library for Sixfab RPi Cellular IoT Shield and [Sixfab RPi Cellular IoT Application Shield](https://sixfab.com/product/raspberry-pi-cellular-iot-application-hat/)
 
 # Library Installation
 ## Manual Installation
