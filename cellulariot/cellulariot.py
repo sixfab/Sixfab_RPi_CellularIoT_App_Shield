@@ -135,6 +135,16 @@ class CellularIoT:
 	# get modem power status
 	def getModemStatus(self):
 		return GPIO.input(STATUS)
+		
+	# send data to module
+	def sendDataCommOnce(self, command):
+		if (ser.isOpen() == False):
+			ser.open()		
+		compose = ""
+		compose = str(command)
+		ser.reset_input_buffer()
+		ser.write(compose.encode())
+		debug_print(compose)
 
 	# send at comamand to module
 	def sendATCommOnce(self, command):
@@ -145,6 +155,26 @@ class CellularIoT:
 		ser.reset_input_buffer()
 		ser.write(compose.encode())
 		debug_print(compose)
+		
+		
+	# function for sending data to BG96_AT.
+	def sendDataComm(self, command, desired_response):
+		
+		self.sendDataCommOnce(command)
+		
+		timer = millis()
+		while 1:
+			if( millis() - timer > self.timeout): 
+				self.sendDataCommOnce(command)
+				timer = millis()
+			
+			response =""
+			while(ser.inWaiting()):
+				response += ser.read(ser.inWaiting()).decode('utf-8')
+			if(response.find(desired_response) != -1):
+				debug_print(response)
+				ser.close()
+				break
 
 	# function for sending at command to BG96_AT.
 	def sendATComm(self, command, desired_response):
