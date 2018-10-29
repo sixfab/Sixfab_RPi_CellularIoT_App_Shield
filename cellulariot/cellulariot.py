@@ -375,12 +375,12 @@ class CellularIoT:
 					
 					
 					ser.close()
-					return response[1]
+					return Decimal(response[1])
 					
 				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
 					debug_print(response)
 					ser.close()
-					return
+					return 0
 			
 	def getLongitude(self):
 
@@ -401,14 +401,14 @@ class CellularIoT:
 					
 					
 					ser.close()
-					return response[2]
+					return Decimal(response[2])
 					
 				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
 					debug_print(response)
 					ser.close()
-					return
+					return 0
 					
-	def getSpeed(self):
+	def getSpeedMph(self):
 
 		self.sendATComm("ATE0","OK\r\n")
 		self.sendATCommOnce("AT+QGPSLOC=2")
@@ -427,12 +427,38 @@ class CellularIoT:
 					
 					
 					ser.close()
-					return response[7]
+					return Decimal(response[7])/1.609344
 					
 				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
 					debug_print(response)
 					ser.close()
-					return
+					return 0
+					
+	def getSpeedKph(self):
+
+		self.sendATComm("ATE0","OK\r\n")
+		self.sendATCommOnce("AT+QGPSLOC=2")
+		
+		timer = millis()
+		while 1:
+				
+			response = ""
+
+			while(ser.inWaiting()):
+				response += ser.readline().decode('utf-8')
+				
+				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
+					
+					response = response.split(",")
+					
+					
+					ser.close()
+					return Decimal(response[7])
+					
+				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
+					debug_print(response)
+					ser.close()
+					return 0
 
 
 	# Function for getting fixed location 
