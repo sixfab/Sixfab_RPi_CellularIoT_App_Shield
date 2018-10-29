@@ -355,6 +355,84 @@ class CellularIoT:
 	# Function for turning of GNSS
 	def turnOffGNSS(self):
 		self.sendATComm("AT+QGPSEND","OK\r\n")
+		
+	def getLatitude(self):
+
+		self.sendATComm("ATE0","OK\r\n")
+		self.sendATCommOnce("AT+QGPSLOC=2")
+		
+		timer = millis()
+		while 1:
+				
+			response = ""
+
+			while(ser.inWaiting()):
+				response += ser.readline().decode('utf-8')
+				
+				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
+					
+					response = response.split(",")
+					
+					
+					ser.close()
+					return response[1]
+					
+				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
+					debug_print(response)
+					ser.close()
+					return
+			
+	def getLongitude(self):
+
+		self.sendATComm("ATE0","OK\r\n")
+		self.sendATCommOnce("AT+QGPSLOC=2")
+		
+		timer = millis()
+		while 1:
+				
+			response = ""
+
+			while(ser.inWaiting()):
+				response += ser.readline().decode('utf-8')
+				
+				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
+					
+					response = response.split(",")
+					
+					
+					ser.close()
+					return response[2]
+					
+				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
+					debug_print(response)
+					ser.close()
+					return
+					
+	def getSpeed(self):
+
+		self.sendATComm("ATE0","OK\r\n")
+		self.sendATCommOnce("AT+QGPSLOC=2")
+		
+		timer = millis()
+		while 1:
+				
+			response = ""
+
+			while(ser.inWaiting()):
+				response += ser.readline().decode('utf-8')
+				
+				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
+					
+					response = response.split(",")
+					
+					
+					ser.close()
+					return response[7]
+					
+				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
+					debug_print(response)
+					ser.close()
+					return
 
 
 	# Function for getting fixed location 
