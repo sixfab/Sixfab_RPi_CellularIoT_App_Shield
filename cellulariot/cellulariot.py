@@ -1,8 +1,7 @@
 '''
   Sixfab_RPi_CellularIoT_Library 
   -
-  Library for Sixfab RPi CellularIoT Hat and 
-  Sixfab RPi CellularIoT Application Hat.
+  Library for Sixfab RPi CellularIoT Application Shield.
   -
   Created by Yasin Kaya (selengalp), August 28, 2018.
 '''
@@ -31,25 +30,28 @@ LUX_CHANNEL = 3
 TIMEOUT = 3 # seconds
 ser = serial.Serial()
 
+
 ###########################################
 ### Private Methods #######################
 ###########################################
 
-# function for printing debug message 
+# Function for printing debug message 
 def debug_print(message):
 	print(message)
 
-# function for getting time as miliseconds
+# Function for getting time as miliseconds
 def millis():
 	return int(time.time())
 
-# function for delay as miliseconds
+# Function for delay as miliseconds
 def delay(ms):
 	time.sleep(float(ms/1000.0))
 
+
 ###########################################
-### Cellular IoT Shield Class #############
-###########################################	
+### Cellular IoT App Shield Class #############
+###########################################
+
 class CellularIoT:
 	board = "" # shield name (Cellular IoT or Cellular IoT App.)
 	ip_address = "" # ip address       
@@ -57,6 +59,9 @@ class CellularIoT:
 	port_number = "" # port number 
 	timeout = TIMEOUT # default timeout for function and methods on this library.
 	
+	response = "" # variable for modem self.responses
+	compose = "" # variable for command self.composes
+
 	# Cellular Modes
 	AUTO_MODE = 0
 	GSM_MODE = 1
@@ -93,6 +98,10 @@ class CellularIoT:
 	SCRAMBLE_ON = "0"
 	SCRAMBLE_OFF = "1"
 	
+	# Special Characters
+	CTRL_Z = '\x1A'
+	
+	# Initializer function
 	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield"):
 		
 		self.board = board
@@ -110,91 +119,121 @@ class CellularIoT:
 		GPIO.setup(STATUS, GPIO.IN)
 			
 		debug_print(self.board + " Class initialized!")
- 
+ 	
+ 	# Function for clearing global compose variable 
+	def clear_compose(self):
+		self.compose = ""
+
+	# Function for enable BG96 module
 	def enable(self):
 		GPIO.output(BG96_ENABLE,1)
 		debug_print("BG96 module enabled!")
 
-	# power down BG96 module and all peripherals from voltage regulator 
+	# Function for powering down BG96 module and all peripherals from voltage regulator 
 	def disable(self):
 		GPIO.output(BG96_ENABLE,0)
 		debug_print("BG96 module disabled!")
 
-	# power up or down BG96 module
+	# Function for powering up or down BG96 module
 	def powerUp(self):
 		GPIO.output(BG96_POWERKEY,1)
-		time.sleep(0.3)
+		delay(300)
 		GPIO.output(BG96_POWERKEY,0)
-		time.sleep(3)
+		delay(300)
 		
 		while self.getModemStatus():
 			pass
-		
 		debug_print("BG96 module powered up!")
 		
-	# get modem power status
+	# Function for getting modem power status
 	def getModemStatus(self):
 		return GPIO.input(STATUS)
-		
-	# send data to module
+	
+	# Function for getting modem response
+	def getResponse(self, desired_response):
+		if (ser.isOpen() == False):
+			ser.open()
+			
+		while 1:	
+			self.response =""
+			while(ser.inWaiting()):
+				self.response += ser.read(ser.inWaiting()).decode('utf-8', errors='ignore')
+			if(self.response.find(desired_response) != -1):
+				debug_print(self.response)
+				break
+	
+	# Function for sending data to module
 	def sendDataCommOnce(self, command):
 		if (ser.isOpen() == False):
 			ser.open()		
-		compose = ""
-		compose = str(command)
+		self.compose = ""
+		self.compose = str(command)
 		ser.reset_input_buffer()
-		ser.write(compose.encode())
-		debug_print(compose)
+		ser.write(self.compose.encode())
+		debug_print(self.compose)
 
-	# send at comamand to module
+	# Function for sending at comamand to module
 	def sendATCommOnce(self, command):
 		if (ser.isOpen() == False):
 			ser.open()		
-		compose = ""
-		compose = "\r\n" + str(command) + "\r\n"
+		self.compose = ""
+		self.compose = str(command) + "\r"
 		ser.reset_input_buffer()
-		ser.write(compose.encode())
-		debug_print(compose)
+		ser.write(self.compose.encode())
+		debug_print(self.compose)
 		
+	# Function for sending data to BG96_AT.
+	def sendDataComm(self, command, desired_response, timeout = None):
 		
-	# function for sending data to BG96_AT.
-	def sendDataComm(self, command, desired_response):
-		
+		if timeout is None:
+			timeout = self.timeout
+        
 		self.sendDataCommOnce(command)
 		
 		timer = millis()
 		while 1:
-			if( millis() - timer > self.timeout): 
+			if( millis() - timer > timeout): 
 				self.sendDataCommOnce(command)
 				timer = millis()
 			
-			response =""
+			self.response =""
 			while(ser.inWaiting()):
-				response += ser.read(ser.inWaiting()).decode('utf-8')
-			if(response.find(desired_response) != -1):
-				debug_print(response)
-				ser.close()
+				self.response += ser.read(ser.inWaiting()).decode('utf-8', errors='ignore')
+			if(self.response.find(desired_response) != -1):
+				debug_print(self.response)
 				break
 
-	# function for sending at command to BG96_AT.
-	def sendATComm(self, command, desired_response):
+	# Function for sending at command to BG96_AT.
+	def sendATComm(self, command, desired_response, timeout = None):
 		
+		if timeout is None:
+			timeout = self.timeout
+			
 		self.sendATCommOnce(command)
+		
+		f_debug = False
 		
 		timer = millis()
 		while 1:
-			if( millis() - timer > self.timeout): 
+			if( millis() - timer > timeout): 
 				self.sendATCommOnce(command)
 				timer = millis()
+				f_debug = False
 			
-			response =""
+			self.response =""
 			while(ser.inWaiting()):
-				response += ser.read(ser.inWaiting()).decode('utf-8')
-			if(response.find(desired_response) != -1):
-				debug_print(response)
-				ser.close()
+				try: 
+					self.response += ser.read(ser.inWaiting()).decode('utf-8', errors='ignore')
+					delay(100)
+				except Exception as e:
+					debug_print(e.Message)
+				# debug_print(self.response)
+					
+			if(self.response.find(desired_response) != -1):
+				debug_print(self.response)
 				break
-	# function for saving conf. and reset BG96_AT module
+
+	# Function for saving conf. and reset BG96_AT module
 	def resetModule(self):
 		self.saveConfigurations()
 		delay(200)
@@ -211,7 +250,6 @@ class CellularIoT:
 	def getIMEI(self):
 		return self.sendATComm("AT+CGSN","OK\r\n")
 
-
 	# Function for getting firmware info
 	def getFirmwareInfo(self):
 		return self.sendATComm("AT+CGMR","OK\r\n")
@@ -223,36 +261,39 @@ class CellularIoT:
 
 	# Function for setting GSM Band
 	def setGSMBand(self, gsm_band):
-		compose = "AT+QCFG=\"band\","
-		compose += str(gsm_band)
-		compose += ","
-		compose += str(self.LTE_NO_CHANGE)
-		compose += ","
-		compose += str(self.LTE_NO_CHANGE)
+		self.compose = "AT+QCFG=\"band\","
+		self.compose += str(gsm_band)
+		self.compose += ","
+		self.compose += str(self.LTE_NO_CHANGE)
+		self.compose += ","
+		self.compose += str(self.LTE_NO_CHANGE)
 
-		self.sendATComm(compose,"OK\r\n")
+		self.sendATComm(self.compose,"OK\r\n")
+		self.clear_compose()
 
 	# Function for setting Cat.M1 Band
 	def setCATM1Band(self, catm1_band):
-		compose = "AT+QCFG=\"band\","
-		compose += str(self.GSM_NO_CHANGE)
-		compose += ","
-		compose += str(catm1_band)
-		compose += ","
-		compose += str(self.LTE_NO_CHANGE)
+		self.compose = "AT+QCFG=\"band\","
+		self.compose += str(self.GSM_NO_CHANGE)
+		self.compose += ","
+		self.compose += str(catm1_band)
+		self.compose += ","
+		self.compose += str(self.LTE_NO_CHANGE)
 
-		self.sendATComm(compose,"OK\r\n")
+		self.sendATComm(self.compose,"OK\r\n")
+		self.clear_compose()
 
 	# Function for setting NB-IoT Band
 	def setNBIoTBand(self, nbiot_band):
-		compose = "AT+QCFG=\"band\","
-		compose += str(self.GSM_NO_CHANGE)
-		compose += ","
-		compose += str(self.LTE_NO_CHANGE)
-		compose += ","
-		compose += str(nbiot_band)
+		self.compose = "AT+QCFG=\"band\","
+		self.compose += str(self.GSM_NO_CHANGE)
+		self.compose += ","
+		self.compose += str(self.LTE_NO_CHANGE)
+		self.compose += ","
+		self.compose += str(nbiot_band)
 
-		self.sendATComm(compose,"OK\r\n")
+		self.sendATComm(self.compose,"OK\r\n")
+		self.clear_compose()
 
 	# Function for getting current band settings
 	def getBandConfiguration(self):
@@ -261,10 +302,11 @@ class CellularIoT:
 
 	# Function for setting scramble feature configuration 
 	def setScrambleConf(self, scramble):
-		compose = "AT+QCFG=\"nbsibscramble\","
-		compose += scramble
+		self.compose = "AT+QCFG=\"nbsibscramble\","
+		self.compose += scramble
 
-		self.sendATComm(compose,"OK\r\n")
+		self.sendATComm(self.compose,"OK\r\n")
+		self.clear_compose()
 
 	# Function for setting running mode.
 	def setMode(self, mode):
@@ -290,36 +332,36 @@ class CellularIoT:
 			self.sendATComm("AT+QCFG=\"iotopmode\",1,1","OK\r\n")
 			debug_print("Modem configuration : CATNB1_MODE ( NB-IoT )")
 
-	# function for getting self.ip_address
+	# Function for getting self.ip_address
 	def getIPAddress(self):
 		return self.ip_address
 
-	# function for setting self.ip_address
+	# Function for setting self.ip_address
 	def setIPAddress(self, ip):
 		self.ip_address = ip
 
 
-	# function for getting self.domain_name
+	# Function for getting self.domain_name
 	def getDomainName(self):
 		return self.domain_name
 
-	# function for setting domain name
+	# Function for setting domain name
 	def setDomainName(self, domain):
 		self.domain_name = domain
 
-	# function for getting port
+	# Function for getting port
 	def getPort(self):
 		return self.port_number
 
-	# function for setting port
+	# Function for setting port
 	def setPort(self, port):
 		self.port_number = port
 
-	# get timout in ms
+	# Function for getting timout in ms
 	def getTimeout(self):
 		return self.timeout
 
-	# set timeout in ms    
+	# Function for setting timeout in ms    
 	def setTimeout(self, new_timeout):
 		self.timeout = new_timeout
 
@@ -328,21 +370,41 @@ class CellularIoT:
 	#*** Network Service Functions ************************************************************
 	#****************************************************************************************** 
 
-	# 
+	# Fuction for getting signal quality
 	def getSignalQuality(self):
 		return self.sendATComm("AT+CSQ","OK\r\n")
 
-
-	#
+	# Function for getting network information
 	def getQueryNetworkInfo(self):
 		return self.sendATComm("AT+QNWINFO","OK\r\n")
 
-	# connect to base station of operator
+	# Function for connecting to base station of operator
 	def connectToOperator(self):
 		debug_print("Trying to connect base station of operator...")
 		self.sendATComm("AT+CGATT?","+CGATT: 1\r\n")
-
 		self.getSignalQuality()
+
+	
+	#******************************************************************************************
+	#*** SMS Functions ************************************************************************
+	#******************************************************************************************
+	
+	# Function for sending SMS
+	def sendSMS(self, number, text):
+		self.sendATComm("AT+CMGF=1","OK\r\n") # text mode	
+		delay(500)
+		
+		self.compose = "AT+CMGS=\""
+		self.compose += str(number)
+		self.compose += "\""
+
+		self.sendATComm(self.compose,">")
+		delay(1000)
+		self.clear_compose()
+		delay(1000)
+		self.sendATCommOnce(text)
+		self.sendATComm(self.CTRL_Z,"OK",8) # with 8 seconds timeout
+		
 
 	#******************************************************************************************
 	#*** GNSS Functions ***********************************************************************
@@ -355,7 +417,8 @@ class CellularIoT:
 	# Function for turning of GNSS
 	def turnOffGNSS(self):
 		self.sendATComm("AT+QGPSEND","OK\r\n")
-		
+	
+	# Function for getting latitude
 	def getLatitude(self):
 
 		self.sendATComm("ATE0","OK\r\n")
@@ -363,25 +426,22 @@ class CellularIoT:
 		
 		timer = millis()
 		while 1:
-				
-			response = ""
+			self.response = ""
 
 			while(ser.inWaiting()):
-				response += ser.readline().decode('utf-8')
+				self.response += ser.readline().decode('utf-8')
 				
-				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
-					
-					response = response.split(",")
-					
-					
+				if( self.response.find("QGPSLOC") != -1 and self.response.find("OK") != -1 ):
+					self.response = self.response.split(",")
 					ser.close()
-					return Decimal(response[1])
+					return Decimal(self.response[1])
 					
-				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
-					debug_print(response)
+				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
+					debug_print(self.response)
 					ser.close()
 					return 0
-			
+	
+	# Function for getting longitude		
 	def getLongitude(self):
 
 		self.sendATComm("ATE0","OK\r\n")
@@ -389,25 +449,22 @@ class CellularIoT:
 		
 		timer = millis()
 		while 1:
-				
-			response = ""
+			self.response = ""
 
 			while(ser.inWaiting()):
-				response += ser.readline().decode('utf-8')
+				self.response += ser.readline().decode('utf-8')
 				
-				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
-					
-					response = response.split(",")
-					
-					
+				if( self.response.find("QGPSLOC") != -1 and self.response.find("OK") != -1 ):
+					self.response = self.response.split(",")
 					ser.close()
-					return Decimal(response[2])
+					return Decimal(self.response[2])
 					
-				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
-					debug_print(response)
+				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
+					debug_print(self.response)
 					ser.close()
 					return 0
-					
+	
+	# Function for getting speed in MPH			
 	def getSpeedMph(self):
 
 		self.sendATComm("ATE0","OK\r\n")
@@ -415,25 +472,22 @@ class CellularIoT:
 		
 		timer = millis()
 		while 1:
-				
-			response = ""
+			self.response = ""
 
 			while(ser.inWaiting()):
-				response += ser.readline().decode('utf-8')
+				self.response += ser.readline().decode('utf-8')
 				
-				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
-					
-					response = response.split(",")
-					
-					
+				if( self.response.find("QGPSLOC") != -1 and self.response.find("OK") != -1 ):
+					self.response = self.response.split(",")
 					ser.close()
-					return Decimal(response[7])/1.609344
+					return Decimal(self.response[7])/1.609344
 					
-				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
-					debug_print(response)
+				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
+					debug_print(self.response)
 					ser.close()
 					return 0
-					
+	
+	# Function for getting speed in KMPH			
 	def getSpeedKph(self):
 
 		self.sendATComm("ATE0","OK\r\n")
@@ -441,81 +495,82 @@ class CellularIoT:
 		
 		timer = millis()
 		while 1:
-				
-			response = ""
+			self.response = ""
 
 			while(ser.inWaiting()):
-				response += ser.readline().decode('utf-8')
+				self.response += ser.readline().decode('utf-8')
 				
-				if( response.find("QGPSLOC") != -1 and response.find("OK") != -1 ):
-					
-					response = response.split(",")
-					
-					
+				if( self.response.find("QGPSLOC") != -1 and self.response.find("OK") != -1 ):
+					self.response = self.response.split(",")
 					ser.close()
-					return Decimal(response[7])
+					return Decimal(self.response[7])
 					
-				if(response.find("\r\n") != -1 and response.find("ERROR") != -1 ):
-					debug_print(response)
+				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
+					debug_print(self.response)
 					ser.close()
 					return 0
-
 
 	# Function for getting fixed location 
 	def getFixedLocation(self):
 		return self.sendATComm("AT+QGPSLOC?","+QGPSLOC:")
 
+
 	#******************************************************************************************
 	#*** TCP & UDP Protocols Functions ********************************************************
 	#******************************************************************************************
 
-	# function for configurating and activating TCP context 
+	# Function for configurating and activating TCP context 
 	def activateContext(self):
 	  self.sendATComm("AT+QICSGP=1","OK\r\n") 
 	  delay(1000)
 	  self.sendATComm("AT+QIACT=1","\r\n")
 
-	# function for deactivating TCP context 
+	# Function for deactivating TCP context 
 	def deactivateContext(self):
 	  self.sendATComm("AT+QIDEACT=1","\r\n")
 
-	# function for connecting to server via TCP
+	# Function for connecting to server via TCP
 	# just buffer access mode is supported for now.
 	def connectToServerTCP(self):
-		compose = "AT+QIOPEN=1,1"
-		compose += ",\"TCP\",\""
-		compose += str(self.ip_address)
-		compose += "\","
-		compose += str(self.port_number)
-		compose += ",0,0"
+		self.compose = "AT+QIOPEN=1,1"
+		self.compose += ",\"TCP\",\""
+		self.compose += str(self.ip_address)
+		self.compose += "\","
+		self.compose += str(self.port_number)
+		self.compose += ",0,0"
 
-		self.sendATComm(compose,"OK\r\n")
+		self.sendATComm(self.compose,"OK\r\n")
+		self.clear_compose()
 		self.sendATComm("AT+QISTATE=0,1","OK\r\n")
 
-	# fuction for sending data via tcp.
+	# Fuction for sending data via tcp.
 	# just buffer access mode is supported for now.
 	def sendDataTCP(self, data):
-		compose = "AT+QISEND=1,"
-		compose += str(len(data))
+		self.compose = "AT+QISEND=1,"
+		self.compose += str(len(data))
 
-		self.sendATComm(compose,">")
+		self.sendATComm(self.compose,">")
 		self.sendATComm(data,"SEND OK")
-		
+		self.clear_compose()
+	
+	# Function for sending data to Sixfab connect
 	def sendDataSixfabConnect(self, server, token, data):
 	
-			
-		compose = "AT+QHTTPCFG=\"contextid\",1"
-		self.sendATComm(compose,"OK")
+		self.compose = "AT+QHTTPCFG=\"contextid\",1"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
 		
-		compose = "AT+QHTTPCFG=\"requestheader\",1"
-		self.sendATComm(compose,"OK")
+		self.compose = "AT+QHTTPCFG=\"requestheader\",1"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
 		
 		url = str("https://"+ server+ "/sixfabStage/")
-		compose = "AT+QHTTPURL="
-		compose += str(len(url))
-		compose += ",80"
+		self.compose = "AT+QHTTPURL="
+		self.compose += str(len(url))
+		self.compose += ",80"
 		self.setTimeout(20)
-		self.sendATComm(compose,"CONNECT")
+		self.sendATComm(self.compose,"CONNECT")
+		self.clear_compose()
 		self.sendDataComm(url,"OK")
 	
 		payload = "POST /sixfabStage/ HTTP/1.1\r\nHost: "+server+"\r\nx-api-key: "+ token +"\r\nContent-Type: application/json\r\nContent-Length: "+str(len(data))+"\r\n\r\n"
@@ -525,113 +580,119 @@ class CellularIoT:
 		print(payload)
 		print("----------------")
 	
-		compose = "AT+QHTTPPOST="
-		compose += str(len(payload))
-		compose += ",60,60"
+		self.compose = "AT+QHTTPPOST="
+		self.compose += str(len(payload))
+		self.compose += ",60,60"
 		
-		self.sendATComm(compose,"CONNECT")
+		self.sendATComm(self.compose,"CONNECT")
+		self.clear_compose()
 		self.sendDataComm(payload,"OK")
-		
-	def sendDataIFTTT(self, eventName, key, data):
 	
-			
-		compose = "AT+QHTTPCFG=\"contextid\",1"
-		self.sendATComm(compose,"OK")
+	# Function for sending data to IFTTT	
+	def sendDataIFTTT(self, eventName, key, data):
 		
-		compose = "AT+QHTTPCFG=\"requestheader\",1"
-		self.sendATComm(compose,"OK")
+		self.compose = "AT+QHTTPCFG=\"contextid\",1"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
 		
-		compose = "AT+QHTTPCFG=\"responseheader\",1"
-		self.sendATComm(compose,"OK")
+		self.compose = "AT+QHTTPCFG=\"requestheader\",1"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
+		
+		self.compose = "AT+QHTTPCFG=\"self.responseheader\",1"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
 		
 		url = str("https://maker.ifttt.com/trigger/" + eventName + "/with/key/"+ key)
-		compose = "AT+QHTTPURL="
-		compose += str(len(url))
-		compose += ",80"
+		self.compose = "AT+QHTTPURL="
+		self.compose += str(len(url))
+		self.compose += ",80"
 		self.setTimeout(20)
-		self.sendATComm(compose,"CONNECT")
+		self.sendATComm(self.compose,"CONNECT")
+		self.clear_compose()
 		self.sendDataComm(url,"OK")
 		
 		payload = "POST /trigger/" + eventName + "/with/key/"+ key +" HTTP/1.1\r\nHost: maker.ifttt.com\r\nContent-Type: application/json\r\nContent-Length: "+str(len(data))+"\r\n\r\n"
 		payload += data
 	
-		compose = "AT+QHTTPPOST="
-		compose += str(len(payload))
-		compose += ",60,60"
+		self.compose = "AT+QHTTPPOST="
+		self.compose += str(len(payload))
+		self.compose += ",60,60"
 		
-		self.sendATComm(compose,"CONNECT")
+		self.sendATComm(self.compose,"CONNECT")
+		self.clear_compose()
 		self.sendDataComm(payload,"OK")
 		
 		delay(5000)
 		
 		self.sendATComm("AT+QHTTPREAD=80","+QHTTPREAD: 0")
-		
+	
+	# Function for sending data to Thingspeak
 	def sendDataThingspeak(self, key, data):
 	
-			
-		compose = "AT+QHTTPCFG=\"contextid\",1"
-		self.sendATComm(compose,"OK")
+		self.compose = "AT+QHTTPCFG=\"contextid\",1"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
 		
-		compose = "AT+QHTTPCFG=\"requestheader\",0"
-		self.sendATComm(compose,"OK")
+		self.compose = "AT+QHTTPCFG=\"requestheader\",0"
+		self.sendATComm(self.compose,"OK")
+		self.clear_compose()
 		
 		url = str("https://api.thingspeak.com/update?api_key=" + key + "&"+ data)
-		compose = "AT+QHTTPURL="
-		compose += str(len(url))
-		compose += ",80"
+		self.compose = "AT+QHTTPURL="
+		self.compose += str(len(url))
+		self.compose += ",80"
 		self.setTimeout(20)
-		self.sendATComm(compose,"CONNECT")
+		self.sendATComm(self.compose,"CONNECT")
+		self.clear_compose()
 		self.sendDataComm(url,"OK")
 	
 		delay(3000)
 		
 		self.sendATComm("AT+QHTTPGET=80","+QHTTPGET")
 
-	# function for connecting to server via UDP
+	# Function for connecting to server via UDP
 	def startUDPService(self):
 		port = "3005"
 
-		compose = "AT+QIOPEN=1,1,\"UDP SERVICE\",\""
-		compose += str(self.ip_address)
-		compose += "\",0,"
-		compose += str(port)
-		compose += ",0"
+		self.compose = "AT+QIOPEN=1,1,\"UDP SERVICE\",\""
+		self.compose += str(self.ip_address)
+		self.compose += "\",0,"
+		self.compose += str(port)
+		self.compose += ",0"
 
-		self.sendATComm(compose,"OK\r\n")
+		self.sendATComm(self.compose,"OK\r\n")
+		self.clear_compose()
 		self.sendATComm("AT+QISTATE=0,1","\r\n")
 
-	# fuction for sending data via udp.
+	# Fuction for sending data via udp.
 	def sendDataUDP(self, data):
-		compose = "AT+QISEND=1,"
-		compose += str(len(data))
-		compose += ",\""
-		compose += str(self.ip_address)
-		compose += "\","
-		compose += str(self.port_number)
+		self.compose = "AT+QISEND=1,"
+		self.compose += str(len(data))
+		self.compose += ",\""
+		self.compose += str(self.ip_address)
+		self.compose += "\","
+		self.compose += str(self.port_number)
 
-		self.sendATComm(compose,">")
+		self.sendATComm(self.compose,">")
+		self.clear_compose()
 		self.sendATComm(data,"SEND OK")
 
-	#function for closing server connection
+	# Function for closing server connection
 	def closeConnection(self):
 		self.sendATComm("AT+QICLOSE=1","\r\n")
-			
-###########################################
-### Cellular IoT Application Shield Class #
-###########################################
-class CellularIoTApp(CellularIoT):
-	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield"):
-		self.serial_port = serial_port
-		self.serial_baudrate = serial_baudrate
-		self.board = board
-		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board)
 
-	# 
+	
+	#******************************************************************************************
+	#*** Shield Peripheral Functions **********************************************************
+	#******************************************************************************************
+
+	# Function for reading accelerometer
 	def readAccel(self):
 		mma = MMA8452Q()
 		return mma.readAcc()
  
-	#
+	# Function for reading ADC
 	def readAdc(self, channelNumber):
 		''' Only use 0,1,2,3(channel Number) for readAdc(channelNumber) function '''
 		adc=ADS1015(address=0x49, busnum=1)
@@ -639,46 +700,46 @@ class CellularIoTApp(CellularIoT):
 		adcValues[channelNumber] = adc.read_adc(channelNumber, gain=1)
 		return adcValues[channelNumber]
 
-	#
+	# Function for reading temperature
 	def readTemp(self):
 		hdc1000 = SDL_Pi_HDC1000()
 		hdc1000.setTemperatureResolution(HDC1000_CONFIG_TEMPERATURE_RESOLUTION_14BIT)
 		return  hdc1000.readTemperature()
 
-	# 
+	# Function for reading humidity
 	def readHum(self):
 		hdc1000 = SDL_Pi_HDC1000()
 		hdc1000.setHumidityResolution(HDC1000_CONFIG_HUMIDITY_RESOLUTION_14BIT)
 		return hdc1000.readHumidity()
 
-	#	
+	# Function for reading light resolution	
 	def readLux(self):
 		adc=ADS1015(address=0x49, busnum=1)
 		rawLux = adc.read_adc(LUX_CHANNEL, gain=1)
 		lux = (rawLux * 100) / 1580
 		return lux
 
-	#
+	# Function for turning on RELAY
 	def turnOnRelay(self):
 		GPIO.setup(RELAY, GPIO.OUT)
 		GPIO.output(RELAY, 1)
 
-	#
+	# Function for turning off RELAY
 	def turnOffRelay(self):
 		GPIO.setup(RELAY, GPIO.OUT)
 		GPIO.output(RELAY, 0)
 
-	#
+	# Function for reading user button
 	def readUserButton(self):
 		GPIO.setup(USER_BUTTON, GPIO.IN)
 		return GPIO.input(USER_BUTTON)
 
-	#
+	# Function for turning on user LED
 	def turnOnUserLED(self):
 		GPIO.setup(USER_LED, GPIO.OUT)
 		GPIO.output(USER_LED, 1)
 
-	#
+	# Function for turning off user LED
 	def turnOffUserLED(self):
 		GPIO.setup(USER_LED, GPIO.OUT)
 		GPIO.output(USER_LED, 0)
