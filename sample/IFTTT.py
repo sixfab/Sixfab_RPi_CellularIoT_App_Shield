@@ -10,7 +10,7 @@ api_key = "ckIkFFy6uxW5TXPZmMZINv"; # change with api-key
 
 data = "{\"value1\":\"%d\"}"
 
-node = cellulariot.CellularIoTApp()
+node = cellulariot.CellularIoT()
 node.disable()
 node.enable()
 node.powerUp()

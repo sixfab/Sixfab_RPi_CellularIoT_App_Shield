@@ -8,7 +8,7 @@ import time
 your_ip = "xx.xx.xx.xx" # change with your ip
 your_port = "xxxx" # change with your port
 
-node = cellulariot.CellularIoTApp()
+node = cellulariot.CellularIoT()
 node.disable()
 node.enable()
 node.powerUp()

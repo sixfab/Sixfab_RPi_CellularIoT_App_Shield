@@ -6,7 +6,7 @@
 from cellulariot import cellulariot
 import time
 
-node = cellulariot.CellularIoTApp()
+node = cellulariot.CellularIoT()
 
 node.disable()
 node.enable()
