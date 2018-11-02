@@ -15,4 +15,4 @@ node.powerUp()
 node.getResponse("RDY")
 node.sendATComm("ATE1","OK\r\n")
 
-node.sendSMS("+905433988390","hello world from turkey")
+node.sendSMS("xxxxxxxxxxxxx","hello world!")
