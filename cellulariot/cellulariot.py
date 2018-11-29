@@ -480,7 +480,7 @@ class CellularIoT:
 				if( self.response.find("QGPSLOC") != -1 and self.response.find("OK") != -1 ):
 					self.response = self.response.split(",")
 					ser.close()
-					return Decimal(self.response[7])/1.609344
+					return round(Decimal(self.response[7])/Decimal('1.609344'), 1)
 					
 				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
 					debug_print(self.response)
