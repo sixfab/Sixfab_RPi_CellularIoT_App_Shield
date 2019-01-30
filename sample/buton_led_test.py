@@ -1,9 +1,8 @@
-'''
-  sendSMS.py - This is basic SMS Service example.
-  Created by Yasin Kaya (selengalp), October 31, 2018.
-'''
 from cellulariot import cellulariot
 import time
+
+your_ip = "xx.xx.xx.xx" # change with your ip
+your_port = "xxxx" # change with your port
 
 #node = cellulariot.CellularIoT() # for Sixfab CellularIoT HAT
 node = cellulariot.CellularIoTApp() # for Sixfab CellularIoT App. Shield
@@ -15,7 +14,8 @@ node.enable()
 time.sleep(1)
 node.powerUp()
 
-node.getResponse("RDY")
-node.sendATComm("ATE1","OK\r\n")
-
-node.sendSMS("xxxxxxxxxxxxx","hello world!")
+while True:
+	if (node.readUserButton() == 1):
+		node.turnOffUserLED()
+	else:
+		node.turnOnUserLED()

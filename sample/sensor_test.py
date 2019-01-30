@@ -6,9 +6,11 @@
 from cellulariot import cellulariot
 import time
 
-node = cellulariot.CellularIoT()
+node = cellulariot.CellularIoTApp()
+node.setupGPIO()
 
 node.disable()
+time.sleep(1)
 node.enable()
 
 time.sleep(0.5)

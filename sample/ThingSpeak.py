@@ -10,8 +10,12 @@ api_key = "XXXXXXXXXXXXX"; # change with api-key
 data = "field1=%d"
 
 node = cellulariot.CellularIoT()
+node.setupGPIO()
+
 node.disable()
+time.sleep(1)
 node.enable()
+time.sleep(1)
 node.powerUp()
 
 node.sendATComm("ATE1","OK\r\n")

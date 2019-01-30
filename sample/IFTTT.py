@@ -5,14 +5,19 @@
 from cellulariot import cellulariot
 import time
 
-event_name = "onData" # change with your eventName
-api_key = "ckIkFFy6uxW5TXPZmMZINv"; # change with api-key
+event_name = "xxxxxx" # change with your eventName
+api_key = "xxxxxxxxxxxxxxxxxxx"; # change with api-key
 
 data = "{\"value1\":\"%d\"}"
 
-node = cellulariot.CellularIoT()
+#node = cellulariot.CellularIoT() # for Sixfab CellularIoT HAT
+node = cellulariot.CellularIoTApp() # for Sixfab CellularIoT App. Shield
+node.setupGPIO()
+
 node.disable()
+time.sleep(1)
 node.enable()
+time.sleep(1)
 node.powerUp()
 
 node.sendATComm("ATE1","OK\r\n")
