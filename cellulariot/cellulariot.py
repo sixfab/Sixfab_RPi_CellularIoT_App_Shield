@@ -13,23 +13,9 @@ from Adafruit_ADS1x15 import ADS1015
 from .SDL_Pi_HDC1000 import *
 from .MMA8452Q import MMA8452Q
 
-# Peripheral Pin Definations
-USER_BUTTON = 24
-USER_LED = 27
-BG96_ENABLE = 26
-RELAY = 17
-BG96_POWERKEY = 11 
-STATUS = 20
-AP_READY = 6
-RING_INDICATOR = 13
-OPTO1 = 10
-OPTO2 = 18
-LUX_CHANNEL = 3
-
 # global variables
 TIMEOUT = 3 # seconds
 ser = serial.Serial()
-
 
 ###########################################
 ### Private Methods #######################
@@ -61,6 +47,12 @@ class CellularIoT:
 	
 	response = "" # variable for modem self.responses
 	compose = "" # variable for command self.composes
+	
+	USER_BUTTON = 22
+	USER_LED = 27
+	BG96_ENABLE = 17
+	BG96_POWERKEY = 24 
+	STATUS = 23
 
 	# Cellular Modes
 	AUTO_MODE = 0
@@ -111,43 +103,54 @@ class CellularIoT:
 		ser.parity=serial.PARITY_NONE
 		ser.stopbits=serial.STOPBITS_ONE
 		ser.bytesize=serial.EIGHTBITS
-		
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setwarnings(False)
-		GPIO.setup(BG96_ENABLE, GPIO.OUT)
-		GPIO.setup(BG96_POWERKEY, GPIO.OUT)
-		GPIO.setup(STATUS, GPIO.IN)
 			
 		debug_print(self.board + " Class initialized!")
- 	
+	
+	def setupGPIO(self):
+		GPIO.setmode(GPIO.BCM)
+		#GPIO.setwarnings(False)
+		GPIO.setup(self.BG96_ENABLE, GPIO.OUT)
+		GPIO.setup(self.BG96_POWERKEY, GPIO.OUT)
+		GPIO.setup(self.STATUS, GPIO.IN)
+		GPIO.setup(self.USER_BUTTON, GPIO.IN)
+		GPIO.setup(self.USER_LED, GPIO.OUT)
+			
+	def __del__(self): 
+		self.clearGPIOs()
+		
  	# Function for clearing global compose variable 
 	def clear_compose(self):
 		self.compose = ""
-
+	
+	# Function for clearing GPIO's setup
+	def clearGPIOs(self):
+		GPIO.cleanup()
+	
 	# Function for enable BG96 module
 	def enable(self):
-		GPIO.output(BG96_ENABLE,1)
+		GPIO.output(self.BG96_ENABLE,0)
 		debug_print("BG96 module enabled!")
 
 	# Function for powering down BG96 module and all peripherals from voltage regulator 
 	def disable(self):
-		GPIO.output(BG96_ENABLE,0)
+		GPIO.output(self.BG96_ENABLE,1)
 		debug_print("BG96 module disabled!")
 
 	# Function for powering up or down BG96 module
 	def powerUp(self):
-		GPIO.output(BG96_POWERKEY,1)
-		delay(300)
-		GPIO.output(BG96_POWERKEY,0)
-		delay(300)
+		GPIO.output(self.BG96_POWERKEY,1)
 		
 		while self.getModemStatus():
 			pass
 		debug_print("BG96 module powered up!")
 		
+		GPIO.output(self.BG96_POWERKEY,0)
+		
+
+		
 	# Function for getting modem power status
 	def getModemStatus(self):
-		return GPIO.input(STATUS)
+		return GPIO.input(self.STATUS)
 	
 	# Function for getting modem response
 	def getResponse(self, desired_response):
@@ -687,6 +690,80 @@ class CellularIoT:
 	#*** Shield Peripheral Functions **********************************************************
 	#******************************************************************************************
 
+	# Function for reading user button
+	def readUserButton(self):
+		return GPIO.input(self.USER_BUTTON)
+
+	# Function for turning on user LED
+	def turnOnUserLED(self):
+		GPIO.output(self.USER_LED, 1)
+
+	# Function for turning off user LED
+	def turnOffUserLED(self):
+		GPIO.output(self.USER_LED, 0)
+		
+
+###########################################
+### Cellular IoT Application Shield Class #
+###########################################
+
+class CellularIoTApp(CellularIoT):
+	USER_BUTTON = 24
+	USER_LED = 27
+	BG96_ENABLE = 26
+	RELAY = 17
+	BG96_POWERKEY = 11 
+	STATUS = 20
+	AP_READY = 6
+	RING_INDICATOR = 13
+	OPTO1 = 10
+	OPTO2 = 18
+	LUX_CHANNEL = 3
+	
+	def __init__(self):
+		super(CellularIoTApp, self).__init__(board="Sixfab Cellular IoT Application Hat")
+		
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield"):
+		self.serial_port = serial_port
+		self.serial_baudrate = serial_baudrate
+		self.board = board
+		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board)
+	
+	def __del__(self):
+		self.clearGPIOs()
+	
+	def setupGPIO(self):
+		GPIO.setmode(GPIO.BCM)
+		#GPIO.setwarnings(False)
+		GPIO.setup(self.BG96_ENABLE, GPIO.OUT)
+		GPIO.setup(self.BG96_POWERKEY, GPIO.OUT)
+		GPIO.setup(self.STATUS, GPIO.IN)
+		GPIO.setup(self.RELAY, GPIO.OUT)
+		GPIO.setup(self.USER_BUTTON, GPIO.IN)
+		GPIO.setup(self.USER_LED, GPIO.OUT)
+		
+	# Function for enable BG96 module
+	def enable(self):
+		GPIO.output(self.BG96_ENABLE,1)
+		debug_print("BG96 module enabled!")
+
+	# Function for powering down BG96 module and all peripherals from voltage regulator 
+	def disable(self):
+		GPIO.output(self.BG96_ENABLE,0)
+		debug_print("BG96 module disabled!")
+
+	# Function for powering up or down BG96 module
+	def powerUp(self):
+		GPIO.output(self.BG96_POWERKEY,1)
+		delay(1000)
+		GPIO.output(self.BG96_POWERKEY,0)
+		delay(2000)
+		debug_print("BG96 module powered up!")
+		
+	# Function for getting modem power status
+	def getModemStatus(self):
+		return GPIO.input(self.STATUS)
+		
 	# Function for reading accelerometer
 	def readAccel(self):
 		mma = MMA8452Q()
@@ -715,31 +792,27 @@ class CellularIoT:
 	# Function for reading light resolution	
 	def readLux(self):
 		adc=ADS1015(address=0x49, busnum=1)
-		rawLux = adc.read_adc(LUX_CHANNEL, gain=1)
+		rawLux = adc.read_adc(self.LUX_CHANNEL, gain=1)
 		lux = (rawLux * 100) / 1580
 		return lux
 
 	# Function for turning on RELAY
 	def turnOnRelay(self):
-		GPIO.setup(RELAY, GPIO.OUT)
-		GPIO.output(RELAY, 1)
+		GPIO.output(self.RELAY, 1)
 
 	# Function for turning off RELAY
 	def turnOffRelay(self):
-		GPIO.setup(RELAY, GPIO.OUT)
-		GPIO.output(RELAY, 0)
-
-	# Function for reading user button
+		GPIO.output(self.RELAY, 0)
+	
+		# Function for reading user button
 	def readUserButton(self):
-		GPIO.setup(USER_BUTTON, GPIO.IN)
-		return GPIO.input(USER_BUTTON)
+		return GPIO.input(self.USER_BUTTON)
 
 	# Function for turning on user LED
 	def turnOnUserLED(self):
-		GPIO.setup(USER_LED, GPIO.OUT)
-		GPIO.output(USER_LED, 1)
+		GPIO.output(self.USER_LED, 1)
 
 	# Function for turning off user LED
 	def turnOffUserLED(self):
-		GPIO.setup(USER_LED, GPIO.OUT)
-		GPIO.output(USER_LED, 0)
+		GPIO.output(self.USER_LED, 0)
+
