@@ -212,7 +212,7 @@ compose = "" # variable for command self.composes
 
 # Pinout
 ## Sixfab RPi Cellular IoT Application Shield
-![Pinout Schematic](https://sixfab.com/wp-content/uploads/2018/09/RPiCellularIoTAppPinout.png)
+![Pinout Schematic](https://sixfab-com.exactdn.com/wp-content/uploads/2018/10/rpi_cellulariot_app_shield_pinout-e1545901898330.png?strip=all&w=1170&ssl=1)
 
 # Attention
 ! All data pins work with 3.3V reference. Any other voltage level should harm your hat or RPI.
