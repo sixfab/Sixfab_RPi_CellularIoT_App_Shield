@@ -215,7 +215,7 @@ compose = "" # variable for command self.composes
 ![Pinout Schematic](https://sixfab-com.exactdn.com/wp-content/uploads/2018/10/rpi_cellulariot_app_shield_pinout-e1545901898330.png?strip=all&w=1170&ssl=1)
 
 ## Sixfab RPi Cellular IoT HAT
-![Pinout Schematic](https://sixfab.com/wp-content/uploads/2019/04/RPi_Cell_IoT_Hat_Pinout_2.jpg)
+![Pinout Schematic](https://sixfab.com/wp-content/uploads/2019/04/RPi_Cell_IoT_Hat_Pinout_2-e1555326552762.jpg)
 
 
 # Attention
@@ -226,6 +226,4 @@ compose = "" # variable for command self.composes
 ![Layout](https://sixfab.com/wp-content/uploads/2018/10/rpi_cellulariot_application_shield_layout-1.png)
 
 ## Sixfab RPi Cellular IoT HAT
-![Layout](https://sixfab.com/wp-content/uploads/2019/04/RPi_Cell_IoT_Hat_Layout_2.jpg)
-
-
+![Layout](https://sixfab.com/wp-content/uploads/2019/04/RPi_Cell_IoT_Hat_Layout_2-e1555326485159.jpg)
