@@ -226,6 +226,6 @@ compose = "" # variable for command self.composes
 ![Layout](https://sixfab.com/wp-content/uploads/2018/10/rpi_cellulariot_application_shield_layout-1.png)
 
 ## Sixfab RPi Cellular IoT HAT
-![Layout](https://sixfab.com/wp-admin/upload.php?item=37578)
+![Layout](https://sixfab.com/wp-content/uploads/2019/04/RPi_Cell_IoT_Hat_Layout_2.jpg)
 
 
