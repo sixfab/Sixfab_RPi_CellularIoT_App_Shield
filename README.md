@@ -1,5 +1,5 @@
 # Sixfab RPi CellularIoT App Shield
-Repository of Python Library for Sixfab RPi Cellular IoT Shield and [Sixfab RPi Cellular IoT Application Shield](https://sixfab.com/product/raspberry-pi-cellular-iot-application-hat/)
+Repository of Python Library for [Sixfab RPi Cellular IoT HAT](https://sixfab.com/product/raspberry-pi-lte-m-nb-iot-egprs-cellular-hat/) and [Sixfab RPi Cellular IoT Application Shield](https://sixfab.com/product/raspberry-pi-cellular-iot-application-hat/)
 
 # Library Installation
 ## Manual Installation
@@ -39,7 +39,7 @@ python3 sensor_test.py  #for testing sensor_test example
 ** [Basic UDP Communication Tutorial for Sixfab RPi Cellular IoT Application Shield](https://sixfab.com/basic-udp-communication-tutorial-for-sixfab-rpi-cellular-iot-application-hat/)  
 ** [Sensor Test Tutorial for Sixfab RPi Cellular IoT Application Shield](https://sixfab.com/sensor-test-tutorial-for-sixfab-rpi-cellular-iot-application-hat/) 
 
-# Documentation
+# Library Documentation
 
 ## CellularIoT class
 
@@ -175,7 +175,7 @@ compose = "" # variable for command self.composes
 
 `turnOffUserLED` - Function for turning off user LED
 
-## CellularIoTApp
+## CellularIoTApp Class
 
 ### Primary Functions
 
@@ -210,15 +210,22 @@ compose = "" # variable for command self.composes
 `turnOffUserLED` - Function for turning off user LED
 
 
-# Pinout
+# Pinouts
 ## Sixfab RPi Cellular IoT Application Shield
 ![Pinout Schematic](https://sixfab-com.exactdn.com/wp-content/uploads/2018/10/rpi_cellulariot_app_shield_pinout-e1545901898330.png?strip=all&w=1170&ssl=1)
+
+## Sixfab RPi Cellular IoT HAT
+![Pinout Schematic](https://sixfab.com/wp-content/uploads/2019/04/RPi_Cell_IoT_Hat_Pinout_2.jpg)
+
 
 # Attention
 ! All data pins work with 3.3V reference. Any other voltage level should harm your hat or RPI.
 
-# Layout
+# Layouts
 ## Sixfab RPi Cellular IoT Application Shield
-![](https://sixfab.com/wp-content/uploads/2018/10/rpi_cellulariot_application_shield_layout-1.png)
+![Layout](https://sixfab.com/wp-content/uploads/2018/10/rpi_cellulariot_application_shield_layout-1.png)
+
+## Sixfab RPi Cellular IoT HAT
+![Layout](https://sixfab.com/wp-admin/upload.php?item=37578)
 
 
