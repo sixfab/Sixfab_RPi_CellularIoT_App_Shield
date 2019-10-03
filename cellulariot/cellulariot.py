@@ -1,7 +1,7 @@
 '''
   Sixfab_RPi_CellularIoT_Library 
   -
-  Library for Sixfab RPi CellularIoT Application Shield.
+  Library for Sixfab RPi Cellular IoT Application Shield and Sixfab RPi Cellular IoT HAT. 
   -
   Created by Yasin Kaya (selengalp), August 28, 2018.
 '''
@@ -38,7 +38,7 @@ def delay(ms):
 ###############################################
 
 class CellularIoT:
-	board = "" # shield name (Cellular IoT or Cellular IoT App.)
+	board = "" # shield name (Cellular IoT HAT or Cellular IoT App.)
 	ip_address = "" # ip address       
 	domain_name = "" # domain name   
 	port_number = "" # port number 
@@ -160,7 +160,7 @@ class CellularIoT:
 	def sendDataCommOnce(self, command):
 		if (ser.isOpen() == False):
 			ser.open()		
-		self.compose = ""
+		self.compose = "" 
 		self.compose = str(command)
 		ser.reset_input_buffer()
 		ser.write(self.compose.encode())
@@ -174,7 +174,7 @@ class CellularIoT:
 		self.compose = str(command) + "\r"
 		ser.reset_input_buffer()
 		ser.write(self.compose.encode())
-		debug_print(self.compose)
+		#debug_print(self.compose)
 		
 	# Function for sending data to BG96_AT.
 	def sendDataComm(self, command, desired_response, timeout = None):
@@ -215,6 +215,7 @@ class CellularIoT:
 				# debug_print(self.response)	
 			if(self.response.find(desired_response) != -1):
 				debug_print(self.response)
+				return self.response # returns the response of the command as string.
 				break
 
 	# Function for saving conf. and reset BG96_AT module
