@@ -233,15 +233,19 @@ class CellularIoT:
 
 	# Function for getting IMEI number
 	def getIMEI(self):
-		return self.sendATComm("AT+CGSN","OK\r\n")
+		return self.sendATComm("AT+CGSN","OK\r\n")	# Identical command: AT+GSN
 
 	# Function for getting firmware info
 	def getFirmwareInfo(self):
-		return self.sendATComm("AT+CGMR","OK\r\n")
+		return self.sendATComm("AT+CGMR","OK\r\n")	# Identical command: AT+GMR
 
 	# Function for getting hardware info
 	def getHardwareInfo(self):
-		return self.sendATComm("AT+CGMM","OK\r\n")
+		return self.sendATComm("AT+CGMM","OK\r\n")	# Identical command: AT+GMM
+
+	# Function returning Manufacturer Identification 
+	def getManufacturerInfo(self):
+		return self.sendATComm("AT+CGMI","OK\r\n")	# Identical command: AT+GMI
 
 	# Function for setting GSM Band
 	def setGSMBand(self, gsm_band):
@@ -346,6 +350,18 @@ class CellularIoT:
 	# Function for setting timeout in ms    
 	def setTimeout(self, new_timeout):
 		self.timeout = new_timeout
+
+	#******************************************************************************************
+	#*** SIM Related Functions ****************************************************************
+	#****************************************************************************************** 
+
+	# Function returns Mobile Subscriber Identity(IMSI)
+	def getIMSI(self):
+		return self.sendATComm("AT+CIMI","OK\r\n")
+
+	# Functions returns Integrated Circuit Card Identifier(ICCID) number of the SIM
+	def getICCID(self):
+		return self.sendATComm("AT+QCCID","OK\r\n")
 
 	#******************************************************************************************
 	#*** Network Service Functions ************************************************************
