@@ -381,6 +381,15 @@ class CellularIoT:
 		self.sendATComm("AT+CGATT?","+CGATT: 1\r\n")
 		self.getSignalQuality()
 
+	# Fuction to check the Network Registration Status
+	def getNetworkRegStatus(self):
+		return self.sendATComm("AT+CREG?","OK\r\n")
+	
+	# Function to check the Operator
+	def getOperator(self):
+		return self.sendATComm("AT+COPS?","OK\r\n")
+
+
 	#******************************************************************************************
 	#*** SMS Functions ************************************************************************
 	#******************************************************************************************
