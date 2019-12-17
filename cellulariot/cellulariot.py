@@ -93,13 +93,15 @@ class CellularIoT:
 	CTRL_Z = '\x1A'
 	
 	# Initializer function
-	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield"):
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield", rtscts=False, dsrdtr=False):
 		self.board = board
 		ser.port = serial_port
 		ser.baudrate = serial_baudrate
 		ser.parity=serial.PARITY_NONE
 		ser.stopbits=serial.STOPBITS_ONE
 		ser.bytesize=serial.EIGHTBITS
+		ser.rtscts=rtscts
+		ser.dsrdtr=dsrdtr
 		debug_print(self.board + " Class initialized!")
 	
 	def setupGPIO(self):
@@ -676,11 +678,11 @@ class CellularIoTApp(CellularIoT):
 	def __init__(self):
 		super(CellularIoTApp, self).__init__(board="Sixfab Cellular IoT Application Hat")
 		
-	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield"):
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield", rtscts=False, dsrdtr=False):
 		self.serial_port = serial_port
 		self.serial_baudrate = serial_baudrate
 		self.board = board
-		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board)
+		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board, rtscts=rtscts, dsrdtr=dsrdtr)
 	
 	def __del__(self):
 		self.clearGPIOs()
