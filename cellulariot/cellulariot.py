@@ -503,6 +503,10 @@ class CellularIoT:
 					return 0
 
 	# Function for getting fixed location 
+	# <mode> Latitude and longitude display format.
+    # 0 <latitude>,<longitude> format: ddmm.mmmm N/S,dddmm.mmmm E/W
+    # 1 <latitude>,<longitude> format: ddmm.mmmmmm N/S,dddmm.mmmmmm E/W
+    # 2 <latitude>,<longitude> format: (-)dd.ddddd,(-)ddd.ddddd
 	def getFixedLocation(self, mode="?"):
 		opts = ["0","1","2"]
 		cmnd = "AT+QGPSLOC?"
