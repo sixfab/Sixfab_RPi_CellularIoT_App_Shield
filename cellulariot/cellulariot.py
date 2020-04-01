@@ -98,7 +98,7 @@ class CellularIoT:
 	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield", rtscts=False, dsrdtr=False, debug=True):
 		self.debug = debug
 		self.board = board
-		ser.port = serial_port
+		self.setSerial(serial_port)
 		ser.baudrate = serial_baudrate
 		ser.parity = serial.PARITY_NONE
 		ser.stopbits = serial.STOPBITS_ONE
@@ -107,6 +107,9 @@ class CellularIoT:
 		ser.dsrdtr = dsrdtr
 		debug_print(self.board + " Class initialized!", self.debug)
 	
+	def setSerial(self, port="/dev/ttyS0"):
+		ser.port = port
+
 	def setDebug(self, enabled=True):
 		self.debug = enabled
 
