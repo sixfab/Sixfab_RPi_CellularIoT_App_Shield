@@ -503,8 +503,12 @@ class CellularIoT:
 					return 0
 
 	# Function for getting fixed location 
-	def getFixedLocation(self):
-		return self.sendATComm("AT+QGPSLOC?","+QGPSLOC:")
+	def getFixedLocation(self, mode="?"):
+		opts = ["0","1","2"]
+		cmnd = "AT+QGPSLOC?"
+		if mode in opts:
+			cmnd = "AT+QGPSLOC=" + mode
+		return self.sendATComm(cmnd,"+QGPSLOC:")
 
 	#******************************************************************************************
 	#*** TCP & UDP Protocols Functions ********************************************************
