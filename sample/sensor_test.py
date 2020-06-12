@@ -1,5 +1,6 @@
 '''
-  sensor_test.py - This is basic sensor_test example.
+  sensor_test.py - This is basic sensor_test example for Cellular IoT Application Shield.
+  WARNING: Running this script in the Cellular IoT HAT will lead to error.
   Created by Yasin Kaya (selengalp), August 28, 2018.
 '''
 
