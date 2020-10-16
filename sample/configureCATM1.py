@@ -13,12 +13,15 @@ node.enable()
 sleep(1)
 node.powerUp()
 
-node.setCATM1Band(node.LTE_CATM1_ANY)
-
 node.setMode(node.CATM1_MODE)
 
-print ("Wait 10 seconds for network registration")
-sleep(10)
+print ("Wait 60 seconds for network registration\nWaiting Time:", end=" ")
+
+for i in range(1,7):
+    sleep(10)
+    print(i*10, end=" ")
+    print("sec")
+    
 
 print ("Checking Signal Quality")
 node.getSignalQuality()
