@@ -28,3 +28,6 @@ node.getSignalQuality()
 
 print ("Checking Attached operator")
 node.getOperator()
+
+print("Getting Network Information")
+node.getQueryNetworkInfo()
