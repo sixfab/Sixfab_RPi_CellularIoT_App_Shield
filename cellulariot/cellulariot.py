@@ -22,8 +22,9 @@ ser = serial.Serial()
 ###########################################
 
 # Function for printing debug message 
-def debug_print(message):
-	print(message)
+def debug_print(message, enabled=True):
+	if enabled:
+		print(message)
 
 # Function for getting time as miliseconds
 def millis():
@@ -38,6 +39,7 @@ def delay(ms):
 ###############################################
 
 class CellularIoT:
+	debug = True
 	board = "" # shield name (Cellular IoT HAT or Cellular IoT App.)
 	ip_address = "" # ip address       
 	domain_name = "" # domain name   
@@ -93,17 +95,24 @@ class CellularIoT:
 	CTRL_Z = '\x1A'
 	
 	# Initializer function
-	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield", rtscts=False, dsrdtr=False):
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Shield", rtscts=False, dsrdtr=False, debug=True):
+		self.debug = debug
 		self.board = board
-		ser.port = serial_port
+		self.setSerial(serial_port)
 		ser.baudrate = serial_baudrate
-		ser.parity=serial.PARITY_NONE
-		ser.stopbits=serial.STOPBITS_ONE
-		ser.bytesize=serial.EIGHTBITS
-		ser.rtscts=rtscts
-		ser.dsrdtr=dsrdtr
-		debug_print(self.board + " Class initialized!")
+		ser.parity = serial.PARITY_NONE
+		ser.stopbits = serial.STOPBITS_ONE
+		ser.bytesize = serial.EIGHTBITS
+		ser.rtscts = rtscts
+		ser.dsrdtr = dsrdtr
+		debug_print(self.board + " Class initialized!", self.debug)
 	
+	def setSerial(self, port="/dev/ttyS0"):
+		ser.port = port
+
+	def setDebug(self, enabled=True):
+		self.debug = enabled
+
 	def setupGPIO(self):
 		GPIO.setmode(GPIO.BCM)
 		#GPIO.setwarnings(False)
@@ -127,19 +136,19 @@ class CellularIoT:
 	# Function for enable BG96 module
 	def enable(self):
 		GPIO.output(self.BG96_ENABLE,0)
-		debug_print("BG96 module enabled!")
+		debug_print("BG96 module enabled!", self.debug)
 
 	# Function for powering down BG96 module and all peripherals from voltage regulator 
 	def disable(self):
 		GPIO.output(self.BG96_ENABLE,1)
-		debug_print("BG96 module disabled!")
+		debug_print("BG96 module disabled!", self.debug)
 
 	# Function for powering up or down BG96 module
 	def powerUp(self):
 		GPIO.output(self.BG96_POWERKEY,1)
 		while self.getModemStatus():
 			pass
-		debug_print("BG96 module powered up!")
+		debug_print("BG96 module powered up!", self.debug)
 		GPIO.output(self.BG96_POWERKEY,0)
 
 	# Function for getting modem power status
@@ -155,7 +164,7 @@ class CellularIoT:
 			while(ser.inWaiting()):
 				self.response += ser.read(ser.inWaiting()).decode('utf-8', errors='ignore')
 			if(self.response.find(desired_response) != -1):
-				debug_print(self.response)
+				debug_print(self.response, self.debug)
 				break
 	
 	# Function for sending data to module
@@ -166,7 +175,7 @@ class CellularIoT:
 		self.compose = str(command)
 		ser.reset_input_buffer()
 		ser.write(self.compose.encode())
-		debug_print(self.compose)
+		debug_print(self.compose, self.debug)
 
 	# Function for sending at comamand to module
 	def sendATCommOnce(self, command):
@@ -176,7 +185,7 @@ class CellularIoT:
 		self.compose = str(command) + "\r"
 		ser.reset_input_buffer()
 		ser.write(self.compose.encode())
-		#debug_print(self.compose)
+		#debug_print(self.compose, self.debug)
 		
 	# Function for sending data to BG96_AT.
 	def sendDataComm(self, command, desired_response, timeout = None):
@@ -192,7 +201,7 @@ class CellularIoT:
 			while(ser.inWaiting()):
 				self.response += ser.read(ser.inWaiting()).decode('utf-8', errors='ignore')
 			if(self.response.find(desired_response) != -1):
-				debug_print(self.response)
+				debug_print(self.response, self.debug)
 				break
 
 	# Function for sending at command to BG96_AT.
@@ -213,10 +222,10 @@ class CellularIoT:
 					self.response += ser.read(ser.inWaiting()).decode('utf-8', errors='ignore')
 					delay(100)
 				except Exception as e:
-					debug_print(e.Message)
-				# debug_print(self.response)	
+					debug_print(e.Message, self.debug)
+				# debug_print(self.response, self.debug)	
 			if(self.response.find(desired_response) != -1):
-				debug_print(self.response)
+				debug_print(self.response, self.debug)
 				return self.response # returns the response of the command as string.
 				break
 
@@ -303,23 +312,23 @@ class CellularIoT:
 			self.sendATComm("AT+QCFG=\"nwscanseq\",00,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"nwscanmode\",0,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"iotopmode\",2,1","OK\r\n")
-			debug_print("Modem configuration : AUTO_MODE")
-			debug_print("*Priority Table (Cat.M1 -> Cat.NB1 -> GSM)")
+			debug_print("Modem configuration : AUTO_MODE", self.debug)
+			debug_print("*Priority Table (Cat.M1 -> Cat.NB1 -> GSM)", self.debug)
 		elif(mode == self.GSM_MODE):
 			self.sendATComm("AT+QCFG=\"nwscanseq\",01,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"nwscanmode\",1,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"iotopmode\",2,1","OK\r\n")
-			debug_print("Modem configuration : GSM_MODE")
+			debug_print("Modem configuration : GSM_MODE", self.debug)
 		elif(mode == self.CATM1_MODE):
 			self.sendATComm("AT+QCFG=\"nwscanseq\",02,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"nwscanmode\",3,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"iotopmode\",0,1","OK\r\n")
-			debug_print("Modem configuration : CATM1_MODE")
+			debug_print("Modem configuration : CATM1_MODE", self.debug)
 		elif(mode == self.CATNB1_MODE):
 			self.sendATComm("AT+QCFG=\"nwscanseq\",03,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"nwscanmode\",3,1","OK\r\n")
 			self.sendATComm("AT+QCFG=\"iotopmode\",1,1","OK\r\n")
-			debug_print("Modem configuration : CATNB1_MODE ( NB-IoT )")
+			debug_print("Modem configuration : CATNB1_MODE ( NB-IoT )", self.debug)
 
 	# Function for getting self.ip_address
 	def getIPAddress(self):
@@ -379,7 +388,7 @@ class CellularIoT:
 
 	# Function for connecting to base station of operator
 	def connectToOperator(self):
-		debug_print("Trying to connect base station of operator...")
+		debug_print("Trying to connect base station of operator...", self.debug)
 		self.sendATComm("AT+CGATT?","+CGATT: 1\r\n")
 		self.getSignalQuality()
 
@@ -438,7 +447,7 @@ class CellularIoT:
 					ser.close()
 					return Decimal(self.response[1])
 				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
-					debug_print(self.response)
+					debug_print(self.response, self.debug)
 					ser.close()
 					return 0
 	
@@ -456,7 +465,7 @@ class CellularIoT:
 					ser.close()
 					return Decimal(self.response[2])
 				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
-					debug_print(self.response)
+					debug_print(self.response, self.debug)
 					ser.close()
 					return 0
 	
@@ -474,7 +483,7 @@ class CellularIoT:
 					ser.close()
 					return round(Decimal(self.response[7])/Decimal('1.609344'), 1)
 				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
-					debug_print(self.response)
+					debug_print(self.response, self.debug)
 					ser.close()
 					return 0
 	
@@ -492,13 +501,21 @@ class CellularIoT:
 					ser.close()
 					return Decimal(self.response[7])
 				if(self.response.find("\r\n") != -1 and self.response.find("ERROR") != -1 ):
-					debug_print(self.response)
+					debug_print(self.response, self.debug)
 					ser.close()
 					return 0
 
 	# Function for getting fixed location 
-	def getFixedLocation(self):
-		return self.sendATComm("AT+QGPSLOC?","+QGPSLOC:")
+	# <mode> Latitude and longitude display format.
+    # 0 <latitude>,<longitude> format: ddmm.mmmm N/S,dddmm.mmmm E/W
+    # 1 <latitude>,<longitude> format: ddmm.mmmmmm N/S,dddmm.mmmmmm E/W
+    # 2 <latitude>,<longitude> format: (-)dd.ddddd,(-)ddd.ddddd
+	def getFixedLocation(self, mode="?"):
+		opts = ["0","1","2"]
+		cmnd = "AT+QGPSLOC?"
+		if mode in opts:
+			cmnd = "AT+QGPSLOC=" + mode
+		return self.sendATComm(cmnd,"+QGPSLOC:")
 
 	#******************************************************************************************
 	#*** TCP & UDP Protocols Functions ********************************************************
@@ -678,11 +695,11 @@ class CellularIoTApp(CellularIoT):
 	def __init__(self):
 		super(CellularIoTApp, self).__init__(board="Sixfab Cellular IoT Application Hat")
 		
-	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield", rtscts=False, dsrdtr=False):
+	def __init__(self, serial_port="/dev/ttyS0", serial_baudrate=115200, board="Sixfab Raspberry Pi Cellular IoT Application Shield", rtscts=False, dsrdtr=False, debug=True):
 		self.serial_port = serial_port
 		self.serial_baudrate = serial_baudrate
 		self.board = board
-		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board, rtscts=rtscts, dsrdtr=dsrdtr)
+		super(CellularIoTApp, self).__init__(serial_port=self.serial_port, serial_baudrate=self.serial_baudrate, board=self.board, rtscts=rtscts, dsrdtr=dsrdtr, debug=debug)
 	
 	def __del__(self):
 		self.clearGPIOs()
@@ -700,12 +717,12 @@ class CellularIoTApp(CellularIoT):
 	# Function for enable BG96 module
 	def enable(self):
 		GPIO.output(self.BG96_ENABLE,1)
-		debug_print("BG96 module enabled!")
+		debug_print("BG96 module enabled!", self.debug)
 
 	# Function for powering down BG96 module and all peripherals from voltage regulator 
 	def disable(self):
 		GPIO.output(self.BG96_ENABLE,0)
-		debug_print("BG96 module disabled!")
+		debug_print("BG96 module disabled!", self.debug)
 
 	# Function for powering up or down BG96 module
 	def powerUp(self):
@@ -713,7 +730,7 @@ class CellularIoTApp(CellularIoT):
 		delay(1000)
 		GPIO.output(self.BG96_POWERKEY,0)
 		delay(2000)
-		debug_print("BG96 module powered up!")
+		debug_print("BG96 module powered up!", self.debug)
 		
 	# Function for getting modem power status
 	def getModemStatus(self):
