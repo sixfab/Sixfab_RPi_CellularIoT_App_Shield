@@ -6,6 +6,7 @@
   Created by Yasin Kaya (selengalp), August 28, 2018.
 '''
 
+import logging
 import time
 import serial
 import RPi.GPIO as GPIO
@@ -16,6 +17,7 @@ from .MMA8452Q import MMA8452Q
 # global variables
 TIMEOUT = 3 # seconds
 ser = serial.Serial()
+logger = logging.getLogger(__name__)
 
 ###########################################
 ### Private Methods #######################
@@ -23,7 +25,7 @@ ser = serial.Serial()
 
 # Function for printing debug message 
 def debug_print(message):
-	print(message)
+	logger.debug(message)
 
 # Function for getting time as miliseconds
 def millis():
